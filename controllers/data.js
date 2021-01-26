@@ -25,6 +25,7 @@ function connectToken(req, token){
     try{
         const payload = jwt.verify(token, "My so secret sentence");
         req.session.logged = true;
+        req.session.token = token;
 
     } catch(error) {
         console.error(error.message);
@@ -38,34 +39,34 @@ function readData(req, res) {
     let Data = require("../models/data");
     const token = req.header('Authorization').replace('Bearer ', '');
 
-    if (req.session.logged !== true){
+    if (req.session.logged !== true || req.session.token !== token){
         req = connectToken(req, token);
     }
 
-    Data.find({})
-    .then((d) => {
-        if (req.session.logged === true){
-            client.exists(token, function(err, reply){
 
-                if (reply === 0){
-                    client.set(token, 1);
-                    client.expire(token, 600);
-                    client.ttl(token, redis.print);
-                    client.get(token, redis.print);
-                    res.status(200).json(d);
-                }
-                else {
-                    incrementToken(req, res, token, d);
-                }
-            });
-            
-        }
-        else{
-            res.status(400).json({error : "Veuillez renseigner un token valide"});
-        }
-    }, (err) => {
-        res.status(500).json(err);
-    });
+    if (req.session.logged === true){
+        Data.find({})
+        .then((d) => {
+                client.exists(token, function(err, reply){
+
+                    if (reply === 0){
+                        client.set(token, 1);
+                        client.expire(token, 600);
+                        client.ttl(token, redis.print);
+                        client.get(token, redis.print);
+                        res.status(200).json(d);
+                    }
+                    else {
+                        incrementToken(req, res, token, d);
+                    }
+                });
+        }, (err) => {
+            res.status(500).json(err);
+        });
+    }
+    else{
+        res.status(400).json({error : "Veuillez renseigner un token valide"});
+    }
  }
 
 function addData(req, res) {
