@@ -14,7 +14,6 @@ let incrementToken = (req, res, token, d) => {
             res.status(200).json(d);
         }
         else{
-            client.del(req.session.token);
             req.session.token = "";
             req.session.logged = false;
             res.status(400).json({error : "Vous avez utilisé votre quota de requêtes, veuillez attendre 10min avant de réessayer"});
