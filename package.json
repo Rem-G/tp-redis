@@ -1,0 +1,31 @@
+{
+  "name": "tp-redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rem-G/tp-redis.git"
+  },
+  "author": "Rem-G",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rem-G/tp-redis/issues"
+  },
+  "homepage": "https://github.com/Rem-G/tp-redis#readme",
+  "dependencies": {
+    "all": "0.0.0",
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "chalk": "^4.1.0",
+    "express": "^4.17.1",
+    "loader": "^2.1.1",
+    "mongoose": "^5.11.13",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.7",
+    "winston": "^3.3.3"
+  }
+}
