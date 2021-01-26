@@ -3,10 +3,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var DataSchema = new Schema({
-    name: String,
     data : {
-    type : Date,
-    default : Date.now
+        type : Date,
+        default : Date.now
     }
 });
 
