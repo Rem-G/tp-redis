@@ -23,23 +23,22 @@ const incrementToken = (req, res, token, d) => {
 function connectToken(req, token){
     const jwt = require('jsonwebtoken')
     try{
-        const payload = jwt.verify(token, "My so secret sentence") 
-        console.log(payload._id);
+        const payload = jwt.verify(token, "My so secret sentence");
         req.session.logged = true;
-        return req;
 
     } catch(error) {
-        console.error(error.message)
+        console.error(error.message);
         req.session.logged = false;
-        return req;
     }
+
+    return req;
 }
 
 function readData(req, res) {
     let Data = require("../models/data");
     const token = req.header('Authorization').replace('Bearer ', '');
 
-    if (req.session.logged === false){
+    if (req.session.logged !== true){
         req = connectToken(req, token);
     }
 
