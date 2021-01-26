@@ -1,3 +1,40 @@
+function connectUser(req, res){
+    let User = require("../models/user");
+
+    User.findOne({ email: req.body.email }, function(err, user) {
+        // test a matching password
+        user.comparePassword(req.body.password, function(err, isMatch) {
+            console.log(isMatch);
+            if (isMatch === true){
+                res.status(200).json();
+            }
+            else {
+                res.status(400).json();
+            }
+        });
+    });
+}
+
+function signUpUser(req, res){
+    let User = require("../models/user");
+
+    var testUser = new User({
+        email: req.body.email,
+        password: req.body.password
+    });
+
+    testUser.save(function(err) {
+        if (err) {
+            res.status(500).json();
+        }
+        else{
+            res.status(200).json();
+        }
+    });
+}
+
+
+
 function user(req, res) {
 
     let User = require("../models/user");
@@ -31,3 +68,7 @@ function user(req, res) {
 }
 
 module.exports.user = user;
+module.exports.connectUser = connectUser;
+module.exports.signUpUser = signUpUser;
+
+

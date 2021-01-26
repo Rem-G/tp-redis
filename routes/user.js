@@ -9,4 +9,12 @@ router.get("/user", (req, res) => {
     controller.user(req, res);
 });
 
+router.post("/connectUser", (req, res) => {
+    controller.connectUser(req, res);
+})
+
+router.post("/signUpUser", (req, res) => {
+    controller.signUpUser(req, res);
+})
+
 module.exports = router;
