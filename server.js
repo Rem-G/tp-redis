@@ -81,15 +81,6 @@ loggers.add('errorLogger', {
 
 const infoLogger = loggers.get('infoLogger');
 
-//Used for Jsonwebtoken (in login)
-const passport = require('passport');
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-
-
-// Passport Setup
-const User = require('./models/user');
-
 //setting session
 app.use(session({
 
@@ -99,25 +90,6 @@ app.use(session({
   store: new MongoStore({ url: 'mongodb+srv://root:root@cluster0.zzjke.mongodb.net/tpredis?retryWrites=true&w=majority', autoReconnect: true})
 
 }));
-
-var opts = {}
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = "My so secret sentence";
-
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-    User.findById(jwt_payload.id)
-    .then((user) => {
-      if (user) {
-        return done(null, user);
-      } else {
-        return done(null, false);
-      }
-    }, (err) => {
-      return done(err, false);
-    });
-}));
-
-app.use(passport.initialize());
 
 //compress response body for better performance
 app.use(compression());

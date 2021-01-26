@@ -26,7 +26,9 @@ function signUpUser(req, res){
 
     var testUser = new User({
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname
     });
 
     testUser.save(function(err) {

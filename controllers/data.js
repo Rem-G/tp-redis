@@ -1,5 +1,3 @@
-//GET
-
 const redis = require("redis");
 const client = redis.createClient();
 
@@ -19,7 +17,7 @@ let incrementToken = (req, res, token, d) => {
             client.del(req.session.token);
             req.session.token = "";
             req.session.logged = false;
-            res.status(400).json({error : "Veuillez renseigner un token valide"});
+            res.status(400).json({error : "Vous avez utilisé votre quota de requêtes, veuillez attendre 10min avant de réessayer"});
         }
     });
 }
@@ -55,8 +53,10 @@ function readData(req, res) {
             client.exists(token, function(err, reply){
 
                 if (reply === 0){
-                    client.set(token, 0);
+                    client.set(token, 1);
                     client.expire(token, 600);
+                    client.ttl(token, redis.print);
+                    client.get(token, redis.print);
                     res.status(200).json(d);
                 }
                 else {
@@ -73,15 +73,13 @@ function readData(req, res) {
     });
  }
 
- //PUT
- function addData(req, res) {
+function addData(req, res) {
     let Data = require("../models/data");
     let newData = Data ({});
 
     newData.save()
     .then((savedData) => {
 
-        //send back the created Pizza
         res.json(savedData);
             
     }, (err) => {

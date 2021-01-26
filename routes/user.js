@@ -9,7 +9,7 @@ router.get("/user", (req, res) => {
     controller.user(req, res);
 });
 
-router.post("/connect", (req, res) => {
+router.post("/signin", (req, res) => {
     controller.connectUser(req, res);
 });
 
