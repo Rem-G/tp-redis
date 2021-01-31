@@ -44,6 +44,88 @@ const connectDb = async () => {
   
   connectDb().catch(error => console.error(error))
 
+//setting session
+app.use(session({
+
+  resave: true,
+  saveUninitialized: true,
+  secret: 'mySecretKey',
+  store: new MongoStore({ url: 'mongodb+srv://root:root@cluster0.zzjke.mongodb.net/tpredis?retryWrites=true&w=majority', autoReconnect: true})
+
+}));
+
+const passport = require('passport');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const User = require('./models/user');
+
+
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = "My so secret sentence";
+
+const redis = require("redis");
+const client = redis.createClient();
+
+client.on("error", function(error) {
+  console.error(error);
+});
+
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+  User.findById(jwt_payload.id)
+  .then((user) => {
+    if (user) {
+      client.exists(jwt_payload.id, function(error, reply){
+        client.ttl(jwt_payload.id, redis.print);
+        client.get(jwt_payload.id, redis.print);
+
+        if (reply === 0){
+            client.set(jwt_payload.id, 1);
+            client.expire(jwt_payload.id, 600);
+            return done(null, user);
+        }
+        else {
+          client.get(jwt_payload.id, function(err, token_value){
+            if (token_value < 10){
+                client.incr(jwt_payload.id);
+                return done(null, user);
+              }
+            else{
+              return done(null, false);
+            }
+          });
+        }
+
+      });
+    
+    } else {
+      return done(null, false);
+    }
+
+  }, (err) => {
+    return done(err, false);
+  });
+}));
+
+app.use(passport.initialize());
+
+
+// passport.use('local-token', new LocalStrategy(
+//   function(token, done) {
+//     try{
+//       const payload = jwt.verify(token, "My so secret sentence");
+//       return (null, true);
+
+//     } catch(error) {
+//       return done(error);
+//     }
+//   }
+// ));
+
+
+//compress response body for better performance
+app.use(compression());
+
 //disable headers indicating pages are coming from an Express server
 app.disable('x-powered-by');
 
@@ -80,19 +162,6 @@ loggers.add('errorLogger', {
 });
 
 const infoLogger = loggers.get('infoLogger');
-
-//setting session
-app.use(session({
-
-  resave: true,
-  saveUninitialized: true,
-  secret: 'mySecretKey',
-  store: new MongoStore({ url: 'mongodb+srv://root:root@cluster0.zzjke.mongodb.net/tpredis?retryWrites=true&w=majority', autoReconnect: true})
-
-}));
-
-//compress response body for better performance
-app.use(compression());
 
   
 //Accessing the routes for the user
